@@ -16,7 +16,7 @@ import { Task } from './task/dto/task.model';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: '2535',
+      password: 'root',
       database: 'todo',
       models: [User, Task],
       autoLoadModels: true,
