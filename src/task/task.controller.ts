@@ -6,6 +6,7 @@ import { changeTaskDto } from './dto/change-task.dto';
 import { findTaskByUserIdDto } from './dto/find-by-userid-task.dto';
 import { switchTaskDto } from './dto/switch-task.dto';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { deleteTaskDto } from './dto/delete-task.dto';
 
 @ApiTags("Задача")
 @Controller('task')
@@ -36,6 +37,12 @@ export class TaskController {
   @Post("/switch")
   switch(@Body() taskDto: switchTaskDto){
     return this.taskService.switchTask(taskDto)
+  }
+
+  @ApiOperation({summary: "Удаление задачи по taskId"})
+  @Post("/delete")
+  delete(@Body() taskDto: deleteTaskDto){
+    return this.taskService.deleteTask(taskDto)
   }
 
 

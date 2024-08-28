@@ -6,6 +6,8 @@ import { findTaskDto } from './dto/find-task.dto';
 import { changeTaskDto } from './dto/change-task.dto';
 import { findTaskByUserIdDto } from './dto/find-by-userid-task.dto';
 import { switchTaskDto } from './dto/switch-task.dto';
+import { deleteTaskDto } from './dto/delete-task.dto';
+import { c } from 'vite/dist/node/types.d-aGj9QkWt';
 
 @Injectable()
 export class TaskService {
@@ -55,5 +57,24 @@ export class TaskService {
     }catch(e){
       console.log(e)
     }
+  }
+
+  async deleteTask(dto: deleteTaskDto){
+    const candidate = await this.findTask(dto);
+    if(!candidate) {
+      throw new HttpException('Такой задачи нет', HttpStatus.NOT_FOUND)
+    }
+    try{
+      candidate.destroy()
+      return "Delete"
+    }
+    catch(err){
+      console.log(err)
+    }
+  }
+
+  async findAllTask(){
+    const task = await this.taskRepository.findAll()
+    return task
   }
 }

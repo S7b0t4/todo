@@ -5,6 +5,7 @@ import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './user/user.model';
 import { TaskModule } from './task/task.module';
 import { Task } from './task/dto/task.model';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
@@ -16,7 +17,7 @@ import { Task } from './task/dto/task.model';
       host: 'localhost',
       port: 5432,
       username: 'postgres',
-      password: 'root',
+      password: process.env.PASSWORD,
       database: 'todo',
       models: [User, Task],
       autoLoadModels: true,
@@ -24,6 +25,7 @@ import { Task } from './task/dto/task.model';
     }),
     UserModule,
     TaskModule,
+    AuthModule,
   ]
 })
 export class AppModule {}
