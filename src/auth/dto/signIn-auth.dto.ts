@@ -1,21 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsEmail, IsString, Length } from "class-validator";
 
-export class AuthUserDto {
-  @ApiProperty({
-    example: 1,
-    default: "Идентификатор пользователя",
-    type: Number
-  })
-  readonly id: number
-
-  @ApiProperty({
-    example: 'Антон',
-    description: 'Имя пользователя',
-    type: String,
-  })
-  @IsString({ message: 'Не валидное имя' })
-  readonly name: string;
+export class signInAuthDto {
 
   @ApiProperty({
     example: 'expample@gmail.ru',
