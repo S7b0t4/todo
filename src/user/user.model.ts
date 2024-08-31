@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsEmail, IsString, Length } from 'class-validator';
 import { Column, DataType, Table, Model, HasMany } from 'sequelize-typescript';
-import { Task } from 'src/task/dto/task.model';
+import { Task } from 'src/task/task.model';
 
 interface UserCreationAttrs {
   name: string;

@@ -1,61 +1,104 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { createTaskDto } from './dto/create-task.dto';
 import { InjectModel } from '@nestjs/sequelize';
-import { Task } from './dto/task.model';
+import { Task } from './task.model';
 import { findTaskDto } from './dto/find-task.dto';
 import { changeTaskDto } from './dto/change-task.dto';
 import { findTaskByUserIdDto } from './dto/find-by-userid-task.dto';
 import { switchTaskDto } from './dto/switch-task.dto';
 import { deleteTaskDto } from './dto/delete-task.dto';
+import { JwtService } from '@nestjs/jwt';
+import { jwtConstants } from 'src/auth/jwtConstants';
 
 @Injectable()
 export class TaskService {
-  constructor(@InjectModel(Task) private taskRepository: typeof Task) {}
+  constructor(
+    private JwtService: JwtService,
+    @InjectModel(Task) private taskRepository: typeof Task
+    ) {}
+
+  private async getUserId(token: string){
+    try{
+      const payload = await this.JwtService.verify(
+        token,
+        {
+          secret: jwtConstants.secret
+        }
+      )
+      if(payload){
+        return payload.id
+      }
+    }
+    catch(e){
+      console.log(e)
+      return false
+    }
+  }
+
   async createTask(dto: createTaskDto) {
-    const task = await this.taskRepository.create(dto);
-    return task;
+    let userId = await this.getUserId(dto.token)
+    if(userId){
+      const task = await this.taskRepository.create({...dto, userId: userId});
+      return task;
+    }
+    throw new HttpException("Не верный ТОКЕН", HttpStatus.BAD_REQUEST)
   }
 
   async findTask(dto: findTaskDto) {
-    const task = await this.taskRepository.findOne({
-      where: { id: dto.taskId, userId: dto.userId },
-    });
-    return task;
+    let userId = await this.getUserId(dto.token)
+    if(userId){
+      const task = await this.taskRepository.findOne({
+        where: { id: dto.taskId, userId: userId },
+      });
+      return task;
+    }
   }
 
   async findTaskByUserId(dto: findTaskByUserIdDto) {
-    const task = await this.taskRepository.findAll({
-      where: { userId: dto.userId }
-    });
-    return task;
+    let userId = await this.getUserId(dto.token)
+    if(userId){
+      const task = await this.taskRepository.findAll({
+        where: { userId: userId }
+      });
+      return task;
+    }
+    throw new HttpException("Не верный ТОКЕН", HttpStatus.BAD_REQUEST)
   }
 
   async changeTask(dto: changeTaskDto) {
-    const candidate = await this.findTask(dto);
-    if (!candidate) {
-      throw new HttpException('Таких задач нет', HttpStatus.NOT_FOUND);
+    let userId = await this.getUserId(dto.token)
+    if(userId){
+      const candidate = await this.findTask(dto);
+      if (!candidate) {
+        throw new HttpException('Таких задач нет', HttpStatus.NOT_FOUND);
+      }
+      try {
+        candidate.text = dto.text;
+        candidate.save();
+        return candidate;
+      } catch (e) {
+        console.log(e);
+      }
     }
-    try {
-      candidate.text = dto.text;
-      candidate.save();
-      return candidate;
-    } catch (e) {
-      console.log(e);
-    }
+    throw new HttpException("Не верный ТОКЕН", HttpStatus.BAD_REQUEST)
   }
 
   async switchTask(dto: switchTaskDto) {
-    const candidate = await this.findTask(dto);
-    if (!candidate) {
-      throw new HttpException('Такой задачи нет', HttpStatus.NOT_FOUND);
+    let userId = await this.getUserId(dto.token)
+    if(userId){
+      const candidate = await this.findTask(dto);
+      if (!candidate) {
+        throw new HttpException('Такой задачи нет', HttpStatus.NOT_FOUND);
+      }
+      try{
+        candidate.switch = dto.switch;
+        candidate.save();
+        return candidate
+      }catch(e){
+        console.log(e)
+      }
     }
-    try{
-      candidate.switch = dto.switch;
-      candidate.save();
-      return candidate
-    }catch(e){
-      console.log(e)
-    }
+    throw new HttpException("Не верный ТОКЕН", HttpStatus.BAD_REQUEST)
   }
 
   async deleteTask(dto: deleteTaskDto){

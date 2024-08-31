@@ -4,7 +4,7 @@ import { UserModule } from './user/user.module';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from './user/user.model';
 import { TaskModule } from './task/task.module';
-import { Task } from './task/dto/task.model';
+import { Task } from './task/task.model';
 import { AuthModule } from './auth/auth.module';
 
 @Module({
