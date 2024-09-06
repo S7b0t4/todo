@@ -5,11 +5,17 @@ import { UserModule } from 'src/user/user.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule } from '@nestjs/config';
 import { jwtConstants } from './jwtConstants';
+import googleOauthConfig from './config/google-oauth.config';
+import { GoogleStrategy } from './strategies/google.strategy';
 
 @Module({
   controllers: [AuthController],
-  providers: [AuthService],
+  providers: [
+    GoogleStrategy,
+    AuthService
+  ],
   imports: [
+    ConfigModule.forFeature(googleOauthConfig),
     ConfigModule.forRoot({
       envFilePath: '.env',
     }),

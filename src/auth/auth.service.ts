@@ -5,6 +5,7 @@ import * as bcrypt from 'bcrypt';
 import { User } from 'src/user/user.model';
 import { signUpAuthDto } from './dto/signUp-auth.dto';
 import { signInAuthDto } from './dto/signIn-auth.dto';
+import { createUserDto } from 'src/user/dto/create-user.dto';
 
 @Injectable()
 export class AuthService {
@@ -37,9 +38,16 @@ export class AuthService {
     return this.generateToken(user)
   }
 
+  async validateGoogleUser(googleUser: createUserDto){
+    const candidate = await this.UserService.findUser(googleUser);
+    if(candidate) return this.signIn(googleUser);
+    console.log("create new user")
+    return await this.signUp(googleUser)
+  }
+
   private async verifyUser(dto: signInAuthDto){
     const candidate = await this.UserService.findUser(dto);
-    const passwordEquals = await bcrypt.compare(dto.password, candidate.password);
+    const passwordEquals = await bcrypt.compare(dto.password, candidate.dataValues.password);
     if(candidate && passwordEquals){
       return candidate
     }
